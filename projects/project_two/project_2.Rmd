@@ -1,0 +1,173 @@
+---
+title: "Project Two"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+Due Oct. 13 at 11:59 PM. 
+
+For this first part of the exam, you can either use `surveys_complete.csv` or your own data. If you are using your own data, you must have data in which you think you have a numerical predictor variable and a numerical response variable. If you are using `surveys_complete`, you can use weight and hindfoot_length for this.
+
+Save this file in your `projects` directory. You can either save it in a project two subdirectory, or just put it in projects. Either way is fine.
+
+
+1) Load in your data. Which variable will you be using as a predictor, and which as a response? (5 pts)
+
+```{r}
+project_dat <- read_csv("AGP+field+data+copy.csv")
+# read in data here
+```
+
+```
+I will be using the svl as the predictor, and the mass as the response. 
+# Answer which column is predictor and which is response
+```
+
+2) Plot the two against each other with a scatter plot. Do the data appear to be related linearly? (5 pts)
+
+
+```{r}
+# Plot here
+ggplot(project_dat, aes(x = svl, y = mass)) +
+geom_jitter()
+```
+
+```
+#This is tough because outright visually, if you just look at the bulk of the points on the graph, you could argue that it looks linear. Though, that doesn't take into account all the outliers. I would need to fit the model to actually see if it is linear. 
+```
+
+
+3) Fit the linear model. View the summary. (5 pts)
+
+
+```{r}
+# Code here
+model_fit <- lm(mass ~ svl, data = project_dat)
+summary(model_fit)
+```
+
+4) Does the summary make sense when you compare it to the plot you made? Does our model have good predictive power? Evaluate the residual standard error, intercept, and R-Squared in particular. Would you say your predictor predicts the response?  (10 pts)
+
+
+```
+# I would say the summary is a little confusing compared to my plot. This model has an iffy predictive power. It just doesn't make sense as a predictor. 
+When looking at the residual standard error, that is showing us how much jargin we have around that estimate. The standard error value is normal in terms of the values falling in a non-linear relationship.
+The intercept - this is saying that for every 1mm of increase in svl, the mass is expected to increase by 0.45g. 
+The R^2 value demonstrates how much variation in the response is explained by the predictor. Just by looking at the adjusted R-squared, it is not very high compared to the value we were looking in at class (0.40 vs. 0.966). So, with that, there could be a bunch of other interacting variables affecting this relationship that we could take into account. Overall, I feel like the predictor does a not-so-good job at predicting the response. 
+```
+
+
+5) Plot the model on the graph. Increase the size of the text so it is comfortably readable at 5 feet. Make sure axis labels are readable and not overlapping with one another. (5 pts)
+
+```{r}
+ggplot(project_dat, aes(x = svl, y = mass)) + geom_point() + geom_smooth(method = "lm") + theme(text=element_text(size=45))
+```
+
+6) Check the normality of the residuals. Do they look OK? Are we violating assumptions? (5 pts)
+
+```{r}
+#Code here
+model_fit <- lm(mass ~ svl, data = project_dat)
+library(broom)
+broom::augment(model_fit)
+augmented_fit <- broom::augment(model_fit)
+qqnorm(augmented_fit$.resid)
+qqline(augmented_fit$.resid, col = "red")
+```
+
+Why is normality of residuals important? 
+
+```{r}
+
+Residuals tell us how much difference there is between the observed data and the expected data. It is important to have normal residuals because if they are not normal, that shows that there may be some problems with the model, or that it is unstable and not effective at explaining the predictions we are making. 
+```
+
+7)
+If you are *not* using  `surveys_complete`: Do you think there are groupings within your data that may have a separate linear model? Try grouping the data by that variable and redoing the lm. If this would not make sense for your data, you may also attempt to do multiple predictor variables. (15 pts)
+
+```{r}
+project_dat %>% 
+  group_by(critter, svl, mass) %>% 
+  ggplot(data = project_dat, mapping = aes(x = svl, y = mass, color = critter)) + geom_point() + geom_smooth(method = "lm")
+```
+
+## Part Two
+
+In this portion, you are free to use your own data if you have a categorical predictor variable and a response variable. Otherwise, you may use the columns sex and weight in `surveys_complete`
+##I am going to group by stage in this case. 
+
+1) First, plot the data grouped by stage (5 pts)
+
+```{r}
+project_dat %>% 
+  group_by(critter, svl, mass, stage) %>% 
+  ggplot(data = project_dat, mapping = aes(x = svl, y = mass, color = stage)) + geom_point() 
+```
+
+2) Try an ANOVA of this data (5 pt)
+
+```{r}
+model_fit -> anova_model_fit
+aov(model_fit) -> anova_model_fit
+anova_model_fit
+summary(anova_model_fit)
+
+ggplot(data = project_dat, mapping = aes(x = stage, y = mass, color = critter)) + geom_jitter(size=0.5) + theme(axis.text.x = element_text(angle = 90))
+```
+
+3) How about a linear model? What information does this give you that an ANOVA can't? (5 pts)
+
+
+```{r}
+model_fit <- lm(mass~stage, data = project_dat)
+summary(model_fit)
+```
+
+```
+This summary tells us how each paramater is related to the mass. But, the ANOVA shows the significance and the residual information, which is helpful, but not really telling us relationships between the data itself. 
+```
+
+3) Plot the lm with the data, with points colored by sex. (10 pts)
+
+
+```{r}
+project_dat %>% 
+  group_by(critter, svl, mass, stage) %>% 
+  ggplot(data = project_dat, mapping = aes(x = stage, y = mass, color = critter)) + geom_point(size = 0.4) + geom_smooth()
+```
+
+4) Choose any model we've looked at so far, but use two predictor variables. Perform an LM, plot the results, and state if this changes your interpretation of the relationship between variables (10 pts)
+
+```{r}
+#Here I am going to use svl and stage as predictors for mass. This does NOT change the interpretation of the relationship - if i look at the summary of the linear model, the r^2 value is insignificant (0.4079) - this means there is 60% is NOT explained by the predictors. 
+model_fit <- lm(mass~svl+stage, data = project_dat)
+summary(model_fit)
+
+ggplot(data = project_dat, mapping = aes(x = svl, y = mass, color = stage)) + geom_point(size = 0.6) + geom_smooth(method = "lm") + theme(axis.text.x = element_text(angle = 45))
+```
+
+```
+This does NOT change the interpretation of the relationship - if i look at the summary of the linear model, the r^2 value is insignificant (0.4079) - this means there is 60% is NOT explained by the predictors. 
+```
+
+## Part Three
+
+
+1) Add and commit this document (5 pts)
+
+```
+#Commands here
+```
+
+2) Push your changes to github (10 pts)
+
+```
+#Commands here
+```
+
+
+
+# MS students
+
+My expectation is that you'll do this with your own data. If any part of this doesn't make sense with your data, please get in touch ASAP so we can work it out.
