@@ -157,13 +157,13 @@ This does NOT change the interpretation of the relationship - if i look at the s
 1) Add and commit this document (5 pts)
 
 ```
-#Commands here
+In the Git tab, I found the project_2 Rmd file location. I checked that box (so it turned green). I hit the commit tab, wrote a comment, and pressed commit. 
 ```
 
 2) Push your changes to github (10 pts)
 
 ```
-#Commands here
+I had to get a new access token to do this. After that was finished, In the source, I selected the Git dropdown arrow, selected the "push" icon (green arrow), and I got a message box back saying that it worked. I then went to my github website and confirmed that it was there. 
 ```
 
 
